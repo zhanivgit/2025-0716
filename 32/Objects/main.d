@@ -31,9 +31,10 @@
 .\objects\main.o: .\System\Delay.h
 .\objects\main.o: .\Hardware\OLED.h
 .\objects\main.o: .\Hardware\Motor.h
-.\objects\main.o: .\Hardware\Serial.h
-.\objects\main.o: D:\51\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\main.o: D:\51\ARM\ARMCC\Bin\..\include\string.h
 .\objects\main.o: D:\51\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\main.o: D:\51\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\main.o: D:\51\ARM\ARMCC\Bin\..\include\math.h
 .\objects\main.o: .\Hardware\ENCODER.h
+.\objects\main.o: .\Hardware\Tracking.h
+.\objects\main.o: .\Hardware\Control.h
