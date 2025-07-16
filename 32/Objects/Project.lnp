@@ -31,6 +31,8 @@
 ".\objects\encoder.o"
 ".\objects\tracking.o"
 ".\objects\control.o"
+".\objects\buzzer.o"
+".\objects\led.o"
 ".\objects\main.o"
 ".\objects\stm32f10x_it.o"
 --strict --scatter ".\Objects\Project.sct"

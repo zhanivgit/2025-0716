@@ -1,19 +1,24 @@
-#include "stm32f10x.h"                  // Device header
+#include "stm32f10x.h"
 #include "Delay.h"
 #include "OLED.h"
 #include "Motor.h"
-#include "string.h"
-#include "stdlib.h"
-#include "stdio.h"
-#include "math.h" // 用于fabs函数
-#include "ENCODER.h" // 包含编码器头文件
-#include "Tracking.h" // 包含循迹模块头文件
-#include "Control.h"  // 包含控制算法头文件
+#include "ENCODER.h"
+#include "Control.h"
+#include "Buzzer.h"
+#include "LED.h"
+#include "Tracking.h"
+
+// --- 任务选择宏定义 ---
+#define TASK_1 1
+#define TASK_2 2
+// #define TASK_3 3 // 待实现
+// #define TASK_4 4 // 待实现
+
+#define CURRENT_TASK TASK_2 // 在这里修改，选择要执行的任务
 
 // 全局变量，供Control.c使用
 int left_current_pulses;
 int right_current_pulses;
-
 
 int main(void)
 {
@@ -21,38 +26,73 @@ int main(void)
     OLED_Init();
     Motor_Init();
     Encoder_Init();
-    Tracking_Init(); // 初始化循迹模块
+    Buzzer_Init();
+    LED_Init();
+    Tracking_Init(); // 循迹模块初始化
 	
-		int tracking_speed = 150; // 设定循迹速度
+    Delay_ms(1000); // 等待1秒，准备开始
 
-    OLED_ShowString(1, 1, "State: TRACKING");
+    #if CURRENT_TASK == TASK_1
+        // --- 执行任务1: A -> B ---
+        OLED_Clear();
+        OLED_ShowString(1, 1, "Task 1: A -> B");
+        Delay_ms(1000);
 
+        OLED_Clear();
+        OLED_ShowString(1, 1, "State: MOVING");
+        move_straight(100, 150); // 行驶100cm，最大速度150
+
+        OLED_Clear();
+        OLED_ShowString(1, 1, "State: ARRIVED B");
+        node_alert();
+        
+        OLED_Clear();
+        OLED_ShowString(1, 1, "Task 1 Complete!");
+
+    #elif CURRENT_TASK == TASK_2
+        // --- 执行任务2: A -> B -> C -> D -> A ---
+        OLED_Clear();
+        OLED_ShowString(1, 1, "Task 2: A->B->C->D->A");
+        Delay_ms(1000);
+
+        // 1. A -> B (直线)
+        OLED_Clear();
+        OLED_ShowString(1, 1, "State: A->B");
+        move_straight(100, 150); // 行驶100cm
+        node_alert();            // 到达B点，声光提示
+        Delay_ms(500);           // 稍作停留
+
+        // 2. B -> C (圆弧循迹，直到离开黑线)
+        OLED_Clear();
+        OLED_ShowString(1, 1, "State: B->C");
+        follow_line_until_no_line(120); // 循迹圆弧，直到离开黑线
+        node_alert();                   // 到达C点，声光提示
+        Delay_ms(500);                  // 稍作停留
+
+        // 3. C -> D (直线)
+        OLED_Clear();
+        OLED_ShowString(1, 1, "State: C->D");
+        move_straight(100, 150); // 行驶100cm
+        node_alert();            // 到达D点，声光提示
+        Delay_ms(500);           // 稍作停留
+
+        // 4. D -> A (圆弧循迹，直到离开黑线)
+        OLED_Clear();
+        OLED_ShowString(1, 1, "State: D->A");
+        follow_line_until_no_line(120); // 循迹圆弧，直到离开黑线
+        node_alert();                   // 到达A点，声光提示
+        Delay_ms(500);                  // 稍作停留
+        
+        OLED_Clear();
+        OLED_ShowString(1, 1, "Task 2 Complete!");
+
+    #else
+        OLED_Clear();
+        OLED_ShowString(1, 1, "Invalid Task!");
+    #endif
+    
     while(1)
     {
-        // 1. 读取传感器状态
-        uint8_t sensor_status = Tracking_ReadStatus();
-        
-        // 2. 根据状态计算偏差
-        int error = Tracking_Calculate_Error(sensor_status);
-        
-        // 3. 调用PID函数计算调整值
-        int adjustment = Tracking_PID_Calculate(error);
-
-        // 4. 计算左右轮速度
-        int left_speed = tracking_speed - adjustment;
-        int right_speed = tracking_speed + adjustment;
-
-        // 5. 设置电机速度
-        MotorA_SetSpeed(left_speed);
-        MotorB_SetSpeed(right_speed);
-
-        // OLED显示调试信息
-        OLED_ShowString(2, 1, "Err: ");
-        OLED_ShowSignedNum(2, 5, error, 4);
-        OLED_ShowString(3, 1, "PID: ");
-        OLED_ShowSignedNum(3, 5, adjustment, 5);
-        OLED_ShowString(4, 1, "L/R: ");
-        OLED_ShowSignedNum(4, 5, left_speed, 4);
-        OLED_ShowSignedNum(4, 10, right_speed, 4);
+        // 任务完成，在此处停止
     }
 }

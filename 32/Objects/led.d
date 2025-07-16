@@ -1,4 +1,5 @@
 .\objects\led.o: Hardware\LED.c
+.\objects\led.o: Hardware\LED.h
 .\objects\led.o: .\Start\stm32f10x.h
 .\objects\led.o: .\Start\core_cm3.h
 .\objects\led.o: D:\51\ARM\ARMCC\Bin\..\include\stdint.h
@@ -28,3 +29,4 @@
 .\objects\led.o: .\Library\stm32f10x_usart.h
 .\objects\led.o: .\Library\stm32f10x_wwdg.h
 .\objects\led.o: .\Library\misc.h
+.\objects\led.o: .\System\Delay.h
