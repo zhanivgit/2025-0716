@@ -12,15 +12,15 @@
 // --- 任务选择宏定义 ---
 #define TASK_1 1
 #define TASK_2 2
-// #define TASK_3 3 // 待实现
+#define TASK_3 3 // 用于测试move_straight
 // #define TASK_4 4 // 待实现
 
-#define CURRENT_TASK TASK_0 // 在这里修改，选择要执行的任务
 
 // 全局变量，供Control.c使用
 int left_current_pulses;
 int right_current_pulses;
 
+#define CURRENT_TASK TASK_0 // 在这里修改，选择要执行的任务
 int main(void)
 {
     // --- 初始化 ---
@@ -30,7 +30,7 @@ int main(void)
     Buzzer_Init();
     LED_Init();
     Tracking_Init(); // 循迹模块初始化
-	
+    turn_degrees(90, 300); // 初始时，向右旋转90度，等待循迹模块初始化
     Delay_ms(1000); // 等待1秒，准备开始
     
     #if CURRENT_TASK == TASK_1
@@ -41,7 +41,7 @@ int main(void)
 
         OLED_Clear();
         OLED_ShowString(1, 1, "State: MOVING");
-        move_straight(100, 300); // 行驶100cm，最大速度150
+         move_straight(500, 200); // 行驶50cm，最大速度200
 
         OLED_Clear();
         OLED_ShowString(1, 1, "State: ARRIVED B");
@@ -86,6 +86,23 @@ int main(void)
         
         OLED_Clear();
         OLED_ShowString(1, 1, "Task 2 Complete!");
+
+    #elif CURRENT_TASK == TASK_3
+        // --- 执行任务3: 测试move_straight ---
+        OLED_Clear();
+        OLED_ShowString(1, 1, "Task 3: Test move_straight");
+        Delay_ms(1000);
+
+        OLED_Clear();
+        OLED_ShowString(1, 1, "State: MOVING STRAIGHT");
+        move_straight(500, 200); // 行驶50cm，最大速度200
+
+        OLED_Clear();
+        OLED_ShowString(1, 1, "State: ARRIVED");
+        node_alert();
+        
+        OLED_Clear();
+        OLED_ShowString(1, 1, "Task 3 Complete!");
 
     #else
     // --- 其他任务 ---

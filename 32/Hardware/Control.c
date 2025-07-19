@@ -86,7 +86,7 @@ void node_alert(void)
     LED_Blink(500, 2); // 闪烁2次，每次500ms
 }
 
-// 使用编码器和PID控制直线行驶指定距离
+// 使用编码器和PID控制直线行驶指定距离    //已测试(有微小偏差)
 void move_straight(float distance_cm, int max_speed)
 {
     float distance_mm = distance_cm * 10.0f;
@@ -94,9 +94,10 @@ void move_straight(float distance_cm, int max_speed)
     int required_pulses = (int)(turns * ENCODER_PPR);
 
     // 直线保持PID
-    float straight_kp = 0.5f;
-    float straight_ki = 0.0f;
-    float straight_kd = 0.2f;
+    float straight_kp = 0.2f;
+    float straight_ki = 0.005f;
+    float straight_kd = 0.04f;
+    int min_speed = 100; // 新增最小速度
     float integral = 0;
     float last_error = 0;
 
@@ -117,22 +118,26 @@ void move_straight(float distance_cm, int max_speed)
         }
 
         // 2. 计算直线保持PID
-        int error = left_current_pulses - right_current_pulses;
+        int error = right_current_pulses - left_current_pulses;
         integral += error;
+        // 积分限幅
+        if (integral > 5000) integral = 5000;
+        if (integral < -5000) integral = -5000;
         float derivative = error - last_error;
         last_error = error;
 
         int adjustment = (int)(straight_kp * error + straight_ki * integral + straight_kd * derivative);
 
         // 3. 计算左右轮速度
-        int left_speed = max_speed - adjustment;
-        int right_speed = max_speed + adjustment;
+        int left_speed =   (max_speed+min_speed)/2 - adjustment;
+        int right_speed = (max_speed+min_speed)/2+ adjustment;
 
         // 4. 速度限制
+        // 速度限制
         if (left_speed > max_speed) left_speed = max_speed;
-        if (left_speed < 0) left_speed = 0;
+        if (left_speed < min_speed) left_speed = min_speed; // 确保不低于最小速度
         if (right_speed > max_speed) right_speed = max_speed;
-        if (right_speed < 0) right_speed = 0;
+        if (right_speed < min_speed) right_speed = min_speed; // 确保不低于最小速度
 
         MotorA_SetSpeed(left_speed);
         MotorB_SetSpeed(right_speed);
