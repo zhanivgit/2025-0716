@@ -36,3 +36,4 @@
 .\objects\main.o: .\Hardware\Buzzer.h
 .\objects\main.o: .\Hardware\LED.h
 .\objects\main.o: .\Hardware\Tracking.h
+.\objects\main.o: D:\51\ARM\ARMCC\Bin\..\include\math.h

@@ -7,6 +7,7 @@
 #include "Buzzer.h"
 #include "LED.h"
 #include "Tracking.h"
+#include "math.h" // 添加此行，用于PI和fabs等数学函数
 
 // --- 任务选择宏定义 ---
 #define TASK_1 1
@@ -14,7 +15,7 @@
 // #define TASK_3 3 // 待实现
 // #define TASK_4 4 // 待实现
 
-#define CURRENT_TASK TASK_2 // 在这里修改，选择要执行的任务
+#define CURRENT_TASK TASK_0 // 在这里修改，选择要执行的任务
 
 // 全局变量，供Control.c使用
 int left_current_pulses;
@@ -31,7 +32,7 @@ int main(void)
     Tracking_Init(); // 循迹模块初始化
 	
     Delay_ms(1000); // 等待1秒，准备开始
-
+    
     #if CURRENT_TASK == TASK_1
         // --- 执行任务1: A -> B ---
         OLED_Clear();
@@ -40,7 +41,7 @@ int main(void)
 
         OLED_Clear();
         OLED_ShowString(1, 1, "State: MOVING");
-        move_straight(100, 150); // 行驶100cm，最大速度150
+        move_straight(100, 300); // 行驶100cm，最大速度150
 
         OLED_Clear();
         OLED_ShowString(1, 1, "State: ARRIVED B");
@@ -87,12 +88,21 @@ int main(void)
         OLED_ShowString(1, 1, "Task 2 Complete!");
 
     #else
-        OLED_Clear();
-        OLED_ShowString(1, 1, "Invalid Task!");
-    #endif
-    
+    // --- 其他任务 ---
+    Clear_Encoder_Count(); // 清零编码器计数
     while(1)
-    {
-        // 任务完成，在此处停止
+    {   // turn_degrees(90, 300); // 旋转测试
+        int left_encoder = Read_Left_Encoder();    //编码器读取测试
+        int right_encoder = Read_Right_Encoder();
+        
+        // 在OLED上显示
+        OLED_ShowString(2, 1, "L:");
+        OLED_ShowSignedNum(2, 3, left_encoder, 5); // 在第2行显示左编码器值
+        
+        OLED_ShowString(3, 1, "R:");
+        OLED_ShowSignedNum(3, 3, right_encoder, 5); // 在第3行显示右编码器值
+        
+        Delay_ms(100); // 延时100毫秒，方便观察
     }
+    #endif
 }
